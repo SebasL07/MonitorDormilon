@@ -8,6 +8,7 @@ public class Monitor extends Thread{
     private Semaphore estudianteO; //El estudiante que tiene ocupado al monitor
 
     private Random espera; //Genera un tiempo de espera aleatorio
+    private static final int TIEMPO_MAX_DORMIR = 5000; // Tiempo máximo que el monitor duerme
 
     public Monitor(Semaphore monitor, Semaphore estudianteO, long seed){
         super();
@@ -27,5 +28,22 @@ public class Monitor extends Thread{
             } catch (InterruptedException e) {
             }
         }
+    }
+
+    private void ayudarEstudiante() {
+
+        try{
+
+            int tiempo = espera.nextInt(TIEMPO_MAX_DORMIR);
+            System.out.println("El monitor ayuda por " + tiempo + "ms" );
+            Thread.sleep(tiempo);
+            estudianteO.release();
+
+        } catch (InterruptedException e) {
+
+            e.printStackTrace();
+
+        }
+
     }
 }
