@@ -1,49 +1,38 @@
-import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.Random;
 
-public class Monitor extends Thread{
+public class Monitor extends Thread {
 
-    private Semaphore monitor; //Los estudiantes lo utilizan para indicar que ya dejan libre al monitor
+    private Semaphore monitor; // El semáforo para "despertar" al monitor
+    private Semaphore estudianteO; // El estudiante que está siendo atendido
+    private Random espera; // Genera tiempos aleatorios de atención
 
-    private Semaphore estudianteO; //El estudiante que tiene ocupado al monitor
-
-    private Random espera; //Genera un tiempo de espera aleatorio
-    private static final int TIEMPO_MAX_DORMIR = 5000; // Tiempo máximo que el monitor duerme
-
-    public Monitor(Semaphore monitor, Semaphore estudianteO, long seed){
-        super();
+    public Monitor(Semaphore monitor, Semaphore estudianteO, long seed) {
         this.monitor = monitor;
         this.estudianteO = estudianteO;
-        espera = new Random(seed);
+        this.espera = new Random(seed);
     }
-    //TODO: como se dan los permisos para que pase el estudiante en la fila
+
     @Override
     public void run() {
-        while (true){
+        while (true) {
             try {
-                //Espera a que no haya estudiantes para atender
-                monitor.acquire();
+                System.out.println("El monitor está durmiendo...");
+                // El monitor espera hasta que un estudiante lo despierte
 
+                monitor.acquire();  // Espera a que un estudiante lo despierte
+                System.out.println("El monitor está atendiendo a un estudiante.");
+
+                // Simula el tiempo de atención del monitor
+                Thread.sleep(espera.nextInt(3000));
+
+                // Liberar al estudiante para que continúe programando
+                estudianteO.release();
+                System.out.println("El monitor ha terminado de ayudar a un estudiante.");
 
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
-    }
-
-    private void ayudarEstudiante() {
-
-        try{
-
-            int tiempo = espera.nextInt(TIEMPO_MAX_DORMIR);
-            System.out.println("El monitor ayuda por " + tiempo + "ms" );
-            Thread.sleep(tiempo);
-            estudianteO.release();
-
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
-
-        }
-
     }
 }
